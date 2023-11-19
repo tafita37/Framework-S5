@@ -9,7 +9,6 @@ import model.Employes;
 public class Main {
     public static void main(String[] args)
     throws Exception {
-        char a;
-        System.out.println(a);
+        
     }
 }

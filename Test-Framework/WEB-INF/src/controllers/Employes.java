@@ -90,6 +90,17 @@ public class Employes {
     throws Exception {
         ModelView result=new ModelView("test.jsp");
         result.addItem("employe", this);
+        result.addSession("role", "admin");
+        result.addSession("isConnected", true);
         return result;
+    }
+
+/// Autorisation
+    @Auth(role = "admin", exception = "Seule l'admin peut acceder a la fonction admin")
+    @Url(link = "admin")
+    public ModelView admin()
+    throws Exception {
+        ModelView md=new ModelView("admin.jsp");
+        return md;
     }
 }

@@ -11,6 +11,14 @@
             <param-name>paquet</param-name>
             <param-value>classes</param-value>
         </init-param>
+        <init-param>
+            <param-name>role</param-name>
+            <param-value>role</param-value>
+        </init-param>
+        <init-param>
+            <param-name>profil</param-name>
+            <param-value>isConnected</param-value>
+        </init-param>
     </servlet>
     <servlet-mapping> 
         <servlet-name>Front</servlet-name>
