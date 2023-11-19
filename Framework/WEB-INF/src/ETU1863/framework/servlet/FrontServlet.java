@@ -5,6 +5,9 @@ import java.util.HashMap;
 import javax.servlet.*;
 import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.http.*;
+
+import com.google.gson.Gson;
+
 import ETU1863.framework.*;
 import url.*;
 
@@ -129,11 +132,15 @@ extends HttpServlet {
         try {
             ModelView md=this.getCorrespondingModelView(request);
             Utilitaire.addSession(request, md);
-            Utilitaire.setAttribute(request, md);
-            RequestDispatcher dispat=null;
-            for(int i=0; i<md.getView().length; i++) {
-                dispat=request.getRequestDispatcher(md.getView()[i]);
-                dispat.include(request, response);
+            if(md.isJson()) {
+                pr.println(new Gson().toJson(md.getData()));
+            } else {
+                Utilitaire.setAttribute(request, md);
+                RequestDispatcher dispat=null;
+                for(int i=0; i<md.getView().length; i++) {
+                    dispat=request.getRequestDispatcher(md.getView()[i]);
+                    dispat.include(request, response);
+                }        
             }
         } catch (Exception e) {
             pr.println(e.getMessage());
