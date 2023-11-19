@@ -5,6 +5,7 @@ import java.util.HashMap;
 public class ModelView {
     String view;
     HashMap<String, Object> data=new HashMap<String, Object>();
+    HashMap<String, Object> session = new HashMap<String, Object>();
 
 /*-----------------------------------Fonctions prérequis--------------------------------------- */
 /// Getters and setters
@@ -30,6 +31,18 @@ public class ModelView {
         this.data = data;
     }
 
+    public HashMap<String, Object> getSession() {
+        return session;
+    }
+
+    public void setSession(HashMap<String, Object> nouveau)
+    throws Exception {
+        if(nouveau==null||nouveau.size()==0) {
+            throw new Exception("Veuillez entrer des variables de sessions");
+        } 
+        this.session = nouveau;
+    }
+
 /// Constructeurs
     public ModelView(String view)
     throws Exception {
@@ -40,5 +53,10 @@ public class ModelView {
 /// Add item
     public void addItem(String key, Object value) {
         this.getData().put(key, value);
+    }
+
+/// Ajouter session
+    public void addSession(String key, Object value) {
+        this.getSession().put(key, value);
     }
 }

@@ -1,20 +1,15 @@
 package url;
 
 import ETU1863.framework.*;
-import ETU1863.framework.servlet.FrontServlet;
 import annotation.*;
 import upload.FileUpload;
-
 import java.io.*;
 import java.util.*;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.Part;
-
 import java.lang.annotation.*;
 import java.lang.reflect.*;
 import java.text.SimpleDateFormat;
-import java.lang.reflect.*;
 
 public class Utilitaire {
     String completeUrl;
@@ -149,6 +144,22 @@ public class Utilitaire {
         return result; 
     }
 
+/// Récupérer toutes les classes avec annotations scope
+    public HashMap<Class<?>, Object> getClassWithScopeAnnotation()
+    throws Exception {
+        HashMap<Class<?>, Object> result=new HashMap<Class<?>, Object>();
+        List<Class<?>> list_classes=this.getAllClasses("");
+        for(int i=0; i<list_classes.size(); i++) {
+            if(list_classes.get(i).isAnnotationPresent(Scope.class)) {
+                Scope scope = list_classes.get(i).getAnnotation(Scope.class);
+                if(scope.singleton().compareToIgnoreCase("Singleton")==0) {
+                    result.put(list_classes.get(i), null);
+                }
+            }
+        }
+        return result; 
+    }
+
 /// Récupérer une classe par son nom
     public Class<?> getClassByName(String name)
     throws Exception {
@@ -270,7 +281,7 @@ public class Utilitaire {
     public static void parseString(Object ob, HttpServletRequest request)
     throws Exception {
         String contentType = request.getContentType();
-        String[] setters=Utilitaire.getSettersMethods(ob);   /// Récupérer les setters d'un objet
+        String[] setters=Utilitaire.getSettersMethods(ob);
         for(int j=0; j<setters.length; j++) {
             if(contentType!=null&&contentType.startsWith("multipart/form-data")&&request.getPart(ob.getClass().getDeclaredFields()[j].getName())!=null) {
                 if(ob.getClass().getDeclaredFields()[j].getType()==FileUpload.class) {
@@ -296,7 +307,7 @@ public class Utilitaire {
                     fp.writeFileUpload(request, part);
                 } else {
                     Utilitaire.castField(ob.getClass().getDeclaredFields()[j], request.getParameter(ob.getClass().getDeclaredFields()[j].getName()), setters[j], ob);
-                }
+                } 
             } else if(request.getParameter(ob.getClass().getDeclaredFields()[j].getName())!=null) {
                 Utilitaire.castField(ob.getClass().getDeclaredFields()[j], request.getParameter(ob.getClass().getDeclaredFields()[j].getName()), setters[j], ob);
             }
@@ -339,5 +350,27 @@ public class Utilitaire {
             }
         }
         throw new Exception("Vous n'avez annote aucune methode de la class "+ob.getClass().getSimpleName());
+    }
+
+/// Setter des attributs à leurs valeurs par défauts
+    public static void setDefaultValue(Object ob)
+    throws Exception {
+        Field[] fields=ob.getClass().getDeclaredFields();
+        for(int i=0; i<fields.length; i++) {
+            fields[i].setAccessible(true);
+            if(fields[i].getType().isPrimitive()) {
+                if(fields[i].getType()==boolean.class) {
+                    fields[i].set(ob, false);
+                }
+                if(fields[i].getType()==byte.class||fields[i].getType()==short.class||fields[i].getType()==int.class||fields[i].getType()==long.class||fields[i].getType()==float.class||fields[i].getType()==double.class) {
+                    fields[i].set(ob, 0);
+                }
+                if(fields[i].getType()==char.class) {
+                    fields[i].set(ob, ' ');
+                }
+            } else {
+                fields[i].set(ob, null);
+            }
+        }
     }
 }
