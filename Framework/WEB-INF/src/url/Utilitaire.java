@@ -64,6 +64,24 @@ public class Utilitaire {
         this.generalPath=nouveau;
     }
 
+/// Obtenir l'url pattern
+    public void setQueryString(StringBuffer requestURL) {
+        String url=requestURL.toString();
+        url=url.split("//")[1];
+        String result="";
+        for(int i=2; i<url.split("/").length-1; i++) {
+            result+=url.split("/")[i]+"/";
+        }
+        if(url.split("/").length-1>=2) {
+            result+=url.split("/")[url.split("/").length-1];
+        }
+        if(result.length()==0) {
+            this.setQueryString("/");
+        } else {
+            this.setQueryString(result);
+        }
+    }
+
 /// Constructeurs
     public Utilitaire() {}
 
@@ -77,15 +95,7 @@ public class Utilitaire {
         String url=requestURL.toString();
         this.setCompleteUrl(url.substring(0, url.length()-1));
         this.setUrlGet(urlGet);
-        url=url.split("//")[1];
-        String result="";
-        for(int i=2; i<url.split("/").length-1; i++) {
-            result+=url.split("/")[i]+"/";
-        }
-        if(url.split("/").length-1>=2) {
-            result+=url.split("/")[url.split("/").length-1];
-        }
-        this.setQueryString("/"+result);
+        this.setQueryString(requestURL);
         this.setGeneralPath(generalPath);
     }
 
@@ -147,8 +157,9 @@ public class Utilitaire {
     }
 
 /// Récupérer la vue correspondante
-    public ModelView getView(HashMap<String, Mapping> urls)
+    public ModelView getView()
     throws Exception {
+        HashMap<String, Mapping> urls=this.getClassWithUrlAnnotation();
         Object[] keys=urls.keySet().toArray();
         for(int i=0; i<keys.length; i++) {
             if(keys[i].toString().compareTo(this.getQueryString())==0) {
@@ -161,5 +172,10 @@ public class Utilitaire {
             }
         }
         throw new Exception("Error 404 : Page not found");
+    }
+
+/// Site url
+    public String site_url(String chemin) {
+        return this.completeUrl+chemin;
     }
 }
