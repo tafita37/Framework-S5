@@ -13,33 +13,20 @@ public class FrontServlet
 extends HttpServlet {
     HashMap<String, Mapping> mappingUrls;
     HashMap<Class<?>, Object> singleton;
-    String[] keys;
-    Class<?>[] keysSingletons;
     String dossier;
+    String role;
+    String profil;
     
     public HashMap<String, Mapping> getMappingUrls() {
         return mappingUrls;
     }
 
-    public String[] getKeys() {
-        return this.keys;
-    }
-
-    public void setKeys(Object[] nouveau)
+    public void setMappingUrls(HashMap<String, Mapping> nouveau)
     throws Exception {
         if(nouveau==null) {
-            throw new Exception("Il n'y a aucune clés");
+            throw new Exception("Veuillez inserer des mappingUrls");
         }
-        if(nouveau.length>0) {
-            this.keys=new String[nouveau.length];
-        }
-        for(int i=0; i<nouveau.length; i++) {
-            this.keys[i]=(String) nouveau[i];
-        }
-    }
-
-    public void setMappingUrls(HashMap<String, Mapping> mappingUrls) {
-        this.mappingUrls = mappingUrls;
+        this.mappingUrls = nouveau;
     }
 
     public HashMap<Class<?>, Object> getSingleton() {
@@ -54,37 +41,39 @@ extends HttpServlet {
         this.singleton = nouveau;
     }
 
-    public void setKeys(String[] keys) {
-        this.keys = keys;
-    }
-
     public String getDossier() {
         return dossier;
     }
 
-    public void setDossier(String dossier) {
-        this.dossier = dossier;
-    }
-
-    public Class<?>[] getKeysSingletons() {
-        return keysSingletons;
-    }
-
-    public void setKeysSingletons(Class<?>[] keysSingletons) {
-        this.keysSingletons = keysSingletons;
-    }
-
-    public void setKeysSingletons(Object[] nouveau)
-    throws Exception {
+    public void setDossier(String nouveau) {
         if(nouveau==null) {
-            throw new Exception("Il n'y a aucune clés");
+            nouveau="";
         }
-        if(nouveau.length>0) {
-            this.keysSingletons=new Class<?>[nouveau.length];
+        this.dossier = nouveau;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String nouveau)
+    throws Exception {
+        if(nouveau==null||nouveau.length()==0) {
+            throw new Exception("Veuillez definir un role dans web.xml avec init-param");
         }
-        for(int i=0; i<nouveau.length; i++) {
-            this.getKeysSingletons()[i]=(Class<?>) nouveau[i];
+        this.role = nouveau;
+    }
+
+    public String getProfil() {
+        return profil;
+    }
+
+    public void setProfil(String nouveau)
+    throws Exception {
+        if(nouveau==null||nouveau.length()==0) {
+            throw new Exception("Veuillez definir un profil dans web.xml avec init-param");
         }
+        this.profil = nouveau;
     }
 
     public void init() {
@@ -95,9 +84,11 @@ extends HttpServlet {
             String fullPath = context.getRealPath("/WEB-INF/"+this.dossier);
             Utilitaire util=new Utilitaire(fullPath);
             this.setMappingUrls(util.getClassWithUrlAnnotation());
-            this.setKeys(this.getMappingUrls().keySet().toArray());
             this.setSingleton(util.getClassWithScopeAnnotation());
-            this.setKeysSingletons(this.getSingleton().keySet().toArray());
+            this.setRole(this.getInitParameter("role"));
+            this.setProfil(this.getInitParameter("profil"));
+            Utilitaire.setRole(this.getRole());
+            Utilitaire.setProfil(this.getProfil());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -114,30 +105,21 @@ extends HttpServlet {
             Class<?> classe=util.getClassByName(mappingUrls.get(util.getQueryString()).getClassName());
             Object ob=null;
             if(this.getSingleton().containsKey(classe)) {
-                System.out.println("eto");
                 if(this.getSingleton().get(classe)==null) {
                     ob=classe.newInstance();
                     this.getSingleton().replace(classe, null, ob);
+                    System.out.println("Nouvelle instance de "+classe.getSimpleName());
                 } else {
                     ob=this.getSingleton().get(classe);
                     Utilitaire.setDefaultValue(ob);
                     System.out.println(classe.getSimpleName()+" est deja instancier");
                 }
             } else {
-                System.out.println("tsia");
                 ob=classe.newInstance();
             }
             Utilitaire.parseString(ob, request);
             return Utilitaire.invokeMethod(request, ob, util.getQueryString());
         }
-        // for(int i=0; i<this.getKeys().length; i++) {
-        //     if(keys[i].toString().compareTo(util.getQueryString())==0) {
-        //         Class<?> classe=util.getClassByName(mappingUrls.get(keys[i]).getClassName());
-        //         Object ob=classe.newInstance();
-        //         Utilitaire.parseString(ob, request);
-        //         return Utilitaire.invokeMethod(request, ob, keys[i].toString());
-        //     }
-        // }
         throw new Exception("Error 404 : Page not found");
     }
 
@@ -146,6 +128,7 @@ extends HttpServlet {
         PrintWriter pr=response.getWriter();
         try {
             ModelView md=this.getCorrespondingModelView(request);
+            Utilitaire.addSession(request, md);
             Utilitaire.setAttribute(request, md);
             RequestDispatcher dispat=request.getRequestDispatcher(md.getView());
             dispat.forward(request, response);

@@ -16,6 +16,8 @@ public class Utilitaire {
     String queryString;
     String urlGet;
     String generalPath;
+    static String role;
+    static String profil;
 
 /*---------------------------------------Fonctions prérequis------------------------------------ */
 /// Getters and Setters
@@ -81,6 +83,22 @@ public class Utilitaire {
         } else {
             this.setQueryString(result);
         }
+    }
+
+    public static String getRole() {
+        return role;
+    }
+
+    public static void setRole(String role) {
+        Utilitaire.role = role;
+    }
+
+    public static String getProfil() {
+        return profil;
+    }
+
+    public static void setProfil(String profil) {
+        Utilitaire.profil = profil;
     }
 
 /// Constructeurs
@@ -305,8 +323,6 @@ public class Utilitaire {
                     }
                     FileUpload fp = (FileUpload) ob.getClass().getDeclaredMethod(Utilitaire.getGettersMethods(ob)[j]).invoke(ob);
                     fp.writeFileUpload(request, part);
-                } else {
-                    Utilitaire.castField(ob.getClass().getDeclaredFields()[j], request.getParameter(ob.getClass().getDeclaredFields()[j].getName()), setters[j], ob);
                 } 
             } else if(request.getParameter(ob.getClass().getDeclaredFields()[j].getName())!=null) {
                 Utilitaire.castField(ob.getClass().getDeclaredFields()[j], request.getParameter(ob.getClass().getDeclaredFields()[j].getName()), setters[j], ob);
@@ -331,6 +347,21 @@ public class Utilitaire {
         return args;
     }
 
+/// Vérifier qu'un utilisateur a droit d'accéder à une méthod
+    public static boolean hasAuthorisation(Method method, HttpServletRequest request) {
+        if(method.isAnnotationPresent(Auth.class)) {
+            if(request.getSession().getAttribute(Utilitaire.getRole())==null) {
+                System.out.println(Utilitaire.getRole());
+                return false;
+            }
+            if(method.getAnnotation(Auth.class).role().compareTo((String) request.getSession().getAttribute(Utilitaire.getRole()))==0) {
+               return true; 
+            }
+            return false;
+        }
+        return true;
+    }
+
 /// Invoquer une méthode ModelView qui a l'url
     public static ModelView invokeMethod(HttpServletRequest request, Object ob, String url)
     throws Exception {
@@ -343,6 +374,9 @@ public class Utilitaire {
                 param=methods[i].getAnnotation(Parameters.class);
                 String link=(String) annot.getClass().getDeclaredMethod("link").invoke(annot);
                 if(link.compareTo(url)==0) {
+                    if(!Utilitaire.hasAuthorisation(methods[i], request)) {
+                        throw new Exception(methods[i].getAnnotation(Auth.class).exception());
+                    }
                     Object[] args=new Object[methods[i].getParameterCount()];
                     args=Utilitaire.getArgs(request, methods[i], param);
                     return (ModelView) methods[i].invoke(ob, args);
@@ -370,6 +404,15 @@ public class Utilitaire {
                 }
             } else {
                 fields[i].set(ob, null);
+            }
+        }
+    }
+
+/// Ajouter des sessions
+    public static void addSession(HttpServletRequest request, ModelView md) {
+        for(int i=0; i<md.getSession().size(); i++) {
+            if(request.getSession().getAttribute((String) md.getSession().keySet().toArray()[i])==null) {
+                request.getSession().setAttribute((String) md.getSession().keySet().toArray()[i], md.getSession().get((String) md.getSession().keySet().toArray()[i]));
             }
         }
     }
