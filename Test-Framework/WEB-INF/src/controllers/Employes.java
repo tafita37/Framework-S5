@@ -1,5 +1,6 @@
 package controllers;
 import annotation.*;
+import url.ModelView;
 public class Employes {
     int id_employes;
     String nom;
@@ -43,8 +44,20 @@ public class Employes {
 
 /*------------------------------------------Fonctions principales------------------------------------------ */
 /// Find all
-    @Url(link = "allEmp")
-    public String findAll() {
-        return "index.jsp";
+    @Url(link = "/")
+    public ModelView findAll()
+    throws Exception {
+        ModelView result=new ModelView("liste.jsp");
+        result.addItem("test", 1);
+        return result;
+    }
+
+/// Deuxième test
+    @Url(link = "/test")
+    public ModelView allEmp()
+    throws Exception {
+        ModelView result=new ModelView("test.jsp");
+        result.addItem("test", 1);
+        return result;
     }
 }

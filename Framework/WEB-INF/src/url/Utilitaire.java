@@ -1,6 +1,7 @@
 package url;
 
 import ETU1863.framework.*;
+import ETU1863.framework.servlet.FrontServlet;
 import annotation.*;
 
 import java.io.*;
@@ -10,12 +11,21 @@ import java.lang.reflect.*;
 import java.lang.reflect.*;
 
 public class Utilitaire {
+    String completeUrl;
     String queryString;
     String urlGet;
     String generalPath;
 
 /*---------------------------------------Fonctions prérequis------------------------------------ */
 /// Getters and Setters
+    public String getCompleteUrl() {
+        return this.completeUrl;
+    }
+
+    public void setCompleteUrl(String nouveau) {
+        this.completeUrl=nouveau;
+    }
+
     public String getQueryString() {
         return queryString;
     }
@@ -65,21 +75,24 @@ public class Utilitaire {
     public Utilitaire(String urlGet, StringBuffer requestURL, String generalPath)
     throws Exception {
         String url=requestURL.toString();
+        this.setCompleteUrl(url.substring(0, url.length()-1));
         this.setUrlGet(urlGet);
         url=url.split("//")[1];
         String result="";
         for(int i=2; i<url.split("/").length-1; i++) {
             result+=url.split("/")[i]+"/";
         }
-        result+=url.split("/")[url.split("/").length-1];
-        this.setQueryString(result);
+        if(url.split("/").length-1>=2) {
+            result+=url.split("/")[url.split("/").length-1];
+        }
+        this.setQueryString("/"+result);
         this.setGeneralPath(generalPath);
     }
 
 /*--------------------------------Fonctions principales--------------------------------------- */
 /// Récupérer tout les .class dans le package classes
     public List<Class<?>> getAllClasses(String pathName)
-    throws Exception {
+    throws Exception { 
         if(pathName.length()==0||pathName==null) {
             pathName=this.getGeneralPath();
         }
@@ -134,18 +147,19 @@ public class Utilitaire {
     }
 
 /// Récupérer la vue correspondante
-    public String getView()
+    public ModelView getView(HashMap<String, Mapping> urls)
     throws Exception {
-        String result="";
-        HashMap<String, Mapping> urls=this.getClassWithUrlAnnotation();
         Object[] keys=urls.keySet().toArray();
         for(int i=0; i<keys.length; i++) {
             if(keys[i].toString().compareTo(this.getQueryString())==0) {
                 Class<?> classe=this.getClassByName(urls.get(keys[i]).getClassName());
                 Object ob=classe.newInstance();
-                result=ob.getClass().getDeclaredMethod(urls.get(keys[i]).getMethod()).invoke(ob).toString();
+                if(!(ob.getClass().getDeclaredMethod(urls.get(keys[i]).getMethod()).invoke(ob) instanceof ModelView)) {
+                    throw new Exception("La method "+ob.getClass().getDeclaredMethod(urls.get(keys[i]).getMethod()).getName()+" doit retourner un objet de type ModelView");
+                }
+                return (ModelView) ob.getClass().getDeclaredMethod(urls.get(keys[i]).getMethod()).invoke(ob);
             }
         }
-        return result;
+        throw new Exception("Error 404 : Page not found");
     }
 }
