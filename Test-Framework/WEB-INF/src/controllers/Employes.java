@@ -4,6 +4,7 @@ import url.ModelView;
 public class Employes {
     int id_employes;
     String nom;
+    String prenom;
 
 /*----------------------------------------Fonctions prérequis---------------------------------------- */
 /// Getters and setters
@@ -33,31 +34,45 @@ public class Employes {
         this.nom = nouveau;
     }
 
+    public String getPrenom() {
+        return this.prenom;
+    }
+
+    public void setPrenom(String nouveau)
+    throws Exception {
+        if(nouveau==null) {
+            throw new Exception("Prenom null");
+        } else if(nouveau.length()==0) {
+            throw new Exception("Veuillez entrer un Prenom");
+        }
+        this.prenom=nouveau;
+    }
+
 /// Constructeurs
     public Employes() {}
 
-    public Employes(int id_employes, String nom)
+    public Employes(int id_employes, String nom, String prenom)
     throws Exception {
         this.setId_employes(id_employes);
         this.setNom(nom);
+        this.setPrenom(prenom);
     }
 
 /*------------------------------------------Fonctions principales------------------------------------------ */
 /// Find all
     @Url(link = "/")
-    public ModelView findAll()
+    public ModelView completeInformation()
     throws Exception {
-        ModelView result=new ModelView("liste.jsp");
-        result.addItem("test", 1);
+        ModelView result=new ModelView("formulaire.jsp");
         return result;
     }
 
 /// Deuxième test
-    @Url(link = "/test")
+    @Url(link = "test")
     public ModelView allEmp()
     throws Exception {
         ModelView result=new ModelView("test.jsp");
-        result.addItem("test", 1);
+        result.addItem("employe", new Employes(id_employes, nom, prenom));
         return result;
     }
 }

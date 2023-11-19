@@ -3,8 +3,8 @@ package url;
 import java.util.HashMap;
 
 public class ModelView {
-    String view;                                                      /// La vue que l'on va charger
-    HashMap<String, Object> data=new HashMap<String, Object>();       /// Les données à envoyer à la vues
+    String view;
+    HashMap<String, Object> data=new HashMap<String, Object>();
 
 /*-----------------------------------Fonctions prérequis--------------------------------------- */
 /// Getters and setters
