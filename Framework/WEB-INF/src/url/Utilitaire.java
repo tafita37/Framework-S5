@@ -6,8 +6,12 @@ import annotation.*;
 
 import java.io.*;
 import java.util.*;
+
+import javax.servlet.http.HttpServletRequest;
+
 import java.lang.annotation.*;
 import java.lang.reflect.*;
+import java.text.SimpleDateFormat;
 import java.lang.reflect.*;
 
 public class Utilitaire {
@@ -76,7 +80,7 @@ public class Utilitaire {
             result+=url.split("/")[url.split("/").length-1];
         }
         if(result.length()==0) {
-            this.setQueryString("/");
+            this.setQueryString("./");
         } else {
             this.setQueryString(result);
         }
@@ -174,8 +178,132 @@ public class Utilitaire {
         throw new Exception("Error 404 : Page not found");
     }
 
-/// Site url
-    public String site_url(String chemin) {
-        return this.completeUrl+chemin;
+/// Setter les attributs d'un HttpServletRequest
+    public static void setAttribute(HttpServletRequest request, ModelView md)
+    throws Exception {
+        Object[] keys=md.getData().keySet().toArray();
+        for(int i=0; i<keys.length; i++) {
+            request.setAttribute((String) keys[i], md.getData().get(keys[i]));
+        }
+    }
+
+/// Convertir la première lettre d'une chaine de caractère en majuscule
+    public static String firstLetterMaj(String charact) {
+        return charact.toUpperCase().substring(0, 1)+charact.substring(1, charact.length());
+    }
+
+/// Récupérer les méthodes setters d'un objet
+    public static String[] getSettersMethods(Object ob) {
+        String[] result=new String[ob.getClass().getDeclaredFields().length];
+        String maj="";
+        for(int i=0; i<result.length; i++) {
+            maj=Utilitaire.firstLetterMaj(ob.getClass().getDeclaredFields()[i].getName());
+            result[i]="set"+maj;
+        }
+        return result;
+    } 
+
+/// Setter chaque attribut de la class Model
+    public static void parseString(Object ob, HttpServletRequest request)
+    throws Exception {
+        String[] setters=Utilitaire.getSettersMethods(ob);
+        for(int j=0; j<setters.length; j++) {
+            if(request.getParameter(ob.getClass().getDeclaredFields()[j].getName())!=null) {
+                try {
+                    ob.getClass().getDeclaredMethod(setters[j], int.class).invoke(ob, Integer.parseInt(request.getParameter(ob.getClass().getDeclaredFields()[j].getName())));
+                } catch (Exception e1) {
+                    try {
+                        ob.getClass().getDeclaredMethod(setters[j], double.class).invoke(ob, Double.parseDouble(request.getParameter(ob.getClass().getDeclaredFields()[j].getName())));
+                    } catch (Exception e2) {
+                        try {
+                            ob.getClass().getDeclaredMethod(setters[j], float.class).invoke(ob, Float.parseFloat(request.getParameter(ob.getClass().getDeclaredFields()[j].getName())));
+                        } catch (Exception e3) {
+                            try {
+                                ob.getClass().getDeclaredMethod(setters[j], long.class).invoke(ob, Long.parseLong(request.getParameter(ob.getClass().getDeclaredFields()[j].getName())));
+                            } catch (Exception e4) {
+                                try {
+                                    ob.getClass().getDeclaredMethod(setters[j], boolean.class).invoke(ob, Boolean.parseBoolean(request.getParameter(ob.getClass().getDeclaredFields()[j].getName())));
+                                } catch (Exception e5) {
+                                    try {
+                                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                                        ob.getClass().getDeclaredMethod(setters[j], Date.class).invoke(ob, sdf.parse(request.getParameter(ob.getClass().getDeclaredFields()[j].getName())));
+                                    } catch (Exception e6) {
+                                        try {
+                                            ob.getClass().getDeclaredMethod(setters[j], String.class).invoke(ob, request.getParameter(ob.getClass().getDeclaredFields()[j].getName()));
+                                        } catch (Exception e7) {
+                                            throw new Exception("Le type ne correspond pas a la variable");
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+/// Caster n'importe quel type de String
+    public static Object cast(Parameter parameter, String param)
+    throws Exception {
+        System.out.println(parameter.getName());
+        System.out.println(param);
+        if(param==null) {
+            throw new Exception("Veuillez entrez un argument");
+        } else if(parameter.getType()==int.class||parameter.getType()==Integer.class) {
+            return Integer.valueOf(param);
+        } else if(parameter.getType()==double.class||parameter.getType()==Double.class) {
+            return Double.valueOf(param);
+        } else if(parameter.getType()==float.class||parameter.getType()==Float.class) {
+            return Double.valueOf(param);
+        } else if(parameter.getType()==long.class||parameter.getType()==Long.class) {
+            return Double.valueOf(param);
+        } else if(parameter.getType()==boolean.class||parameter.getType()==Boolean.class) {
+            return Double.valueOf(param);
+        } else if(parameter.getType()==Date.class) {
+            return Double.valueOf(param);
+        } else if(parameter.getType()==String.class) {
+            return Double.valueOf(param);
+        } else {
+            throw new Exception("Le type d'argument est inconnu");
+        }
+    }
+
+/// Récupérer un tableau d'objet contenant les variables de requete directement casté
+    public static Object[] getArgs(HttpServletRequest request, Method method, Parameters param)
+    throws Exception {
+        Object[] args=new Object[method.getParameterCount()];
+        Parameter[] parameters=method.getParameters();
+        if(param!=null) {
+            String[] argsName=param.args();
+            if(argsName.length!=method.getParameterCount()) {
+                throw new Exception("Nombre d'argument et de parametre incomptabile");
+            }
+            for(int i=0; i<args.length; i++) {
+                args[i]=Utilitaire.cast(parameters[i], request.getParameter(argsName[i]));
+            }
+        }
+        return args;
+    }
+
+/// Invoquer une méthode ModelView qui a l'url
+    public static ModelView invokeMethod(HttpServletRequest request, Object ob, String url)
+    throws Exception {
+        Method[] methods=ob.getClass().getDeclaredMethods();
+        Annotation annot=null;
+        Parameters param=null;
+        for(int i=0; i<methods.length; i++) {
+            if(methods[i].isAnnotationPresent(Url.class)) {
+                annot=methods[i].getAnnotation(Url.class);
+                param=methods[i].getAnnotation(Parameters.class);
+                String link=(String) annot.getClass().getDeclaredMethod("link").invoke(annot);
+                if(link.compareTo(url)==0) {
+                    Object[] args=new Object[methods[i].getParameterCount()];
+                    args=Utilitaire.getArgs(request, methods[i], param);
+                    return (ModelView) methods[i].invoke(ob, args);
+                }
+            }
+        }
+        throw new Exception("Vous n'avez annote aucune methode de la class "+ob.getClass().getSimpleName());
     }
 }
