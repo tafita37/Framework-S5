@@ -60,7 +60,7 @@ public class Employes {
 
 /*------------------------------------------Fonctions principales------------------------------------------ */
 /// Find all
-    @Url(link = "/")
+    @Url(link = "./")
     public ModelView completeInformation()
     throws Exception {
         ModelView result=new ModelView("formulaire.jsp");
@@ -69,10 +69,11 @@ public class Employes {
 
 /// Deuxième test
     @Url(link = "test")
-    public ModelView allEmp()
+    @Parameters(args = {"idEmp"})
+    public ModelView allEmp(int idEmp)
     throws Exception {
         ModelView result=new ModelView("test.jsp");
-        result.addItem("employe", new Employes(id_employes, nom, prenom));
+        result.addItem("employe", this);
         return result;
     }
 }
