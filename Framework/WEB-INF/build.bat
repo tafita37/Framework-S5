@@ -1,9 +1,9 @@
 cd "C:\Program Files\Apache Software Foundation\Tomcat 8.5\webapps\Framework\Framework\WEB-INF"
 javac -d . src/annotation/*.java
+javac -d . src/upload/*.java
 javac -d . src/url/*.java
 javac -d . src/ETU1863/framework/*.java
 javac -d . src/ETU1863/framework/servlet/*.java
-javac -d . src/upload/*.java
 rmdir /s /q classes
 mkdir classes
 move /Y annotation classes/

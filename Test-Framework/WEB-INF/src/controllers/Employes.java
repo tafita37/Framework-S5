@@ -1,10 +1,12 @@
 package controllers;
 import annotation.*;
+import upload.FileUpload;
 import url.ModelView;
 public class Employes {
     int id_employes;
     String nom;
     String prenom;
+    FileUpload photo;
 
 /*----------------------------------------Fonctions prérequis---------------------------------------- */
 /// Getters and setters
@@ -48,14 +50,26 @@ public class Employes {
         this.prenom=nouveau;
     }
 
+    public FileUpload getPhoto() {
+        return photo;
+    }
+
+    public void setPhoto(FileUpload photo) {
+        this.photo = photo;
+    }
+
 /// Constructeurs
-    public Employes() {}
+    public Employes()
+    throws Exception {
+        this.photo=new FileUpload("assets/img");
+    }
 
     public Employes(int id_employes, String nom, String prenom)
     throws Exception {
         this.setId_employes(id_employes);
         this.setNom(nom);
         this.setPrenom(prenom);
+        this.photo=new FileUpload("assets/img");
     }
 
 /*------------------------------------------Fonctions principales------------------------------------------ */
@@ -69,8 +83,7 @@ public class Employes {
 
 /// Deuxième test
     @Url(link = "test")
-    @Parameters(args = {"idEmp"})
-    public ModelView allEmp(int idEmp)
+    public ModelView allEmp()
     throws Exception {
         ModelView result=new ModelView("test.jsp");
         result.addItem("employe", this);

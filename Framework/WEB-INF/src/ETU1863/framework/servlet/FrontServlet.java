@@ -11,6 +11,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 import javax.servlet.*;
+import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.http.*;
 import javax.xml.parsers.*;
 import org.w3c.dom.*;
@@ -19,6 +20,7 @@ import annotation.Parameters;
 import annotation.Url;
 import url.*;
 
+@MultipartConfig
 public class FrontServlet
 extends HttpServlet {
     HashMap<String, Mapping> mappingUrls;
