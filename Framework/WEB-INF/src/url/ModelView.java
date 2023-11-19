@@ -1,12 +1,15 @@
 package url;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class ModelView {
     String[] view;
     HashMap<String, Object> data=new HashMap<String, Object>();
     HashMap<String, Object> session = new HashMap<String, Object>();
+    ArrayList<String> sessionRemove = new ArrayList<String>();
     boolean json;
+    boolean invalidateSession;
 
 /*-----------------------------------Fonctions prérequis--------------------------------------- */
 /// Getters and setters
@@ -52,6 +55,26 @@ public class ModelView {
         this.json = nouveau;
     }
 
+    public ArrayList<String> getSessionRemove() {
+        return sessionRemove;
+    }
+
+    public void setSessionRemove(ArrayList<String> nouveau)
+    throws Exception {
+        if(nouveau==null) {
+            throw new Exception("Veuillez definir des sessions a supprimer");
+        }
+        this.sessionRemove = nouveau;
+    }
+
+    public boolean isInvalidateSession() {
+        return invalidateSession;
+    }
+
+    public void setInvalidateSession(boolean invalidateSession) {
+        this.invalidateSession = invalidateSession;
+    }
+
 /// Constructeurs
     public ModelView(String...view)
     throws Exception {
@@ -67,5 +90,10 @@ public class ModelView {
 /// Ajouter session
     public void addSession(String key, Object value) {
         this.getSession().put(key, value);
+    }
+
+/// Effacer une session
+    public void removeSession(String key) {
+        this.getSessionRemove().add(key);
     }
 }

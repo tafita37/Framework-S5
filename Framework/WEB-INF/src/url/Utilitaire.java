@@ -170,7 +170,7 @@ public class Utilitaire {
         for(int i=0; i<list_classes.size(); i++) {
             if(list_classes.get(i).isAnnotationPresent(Scope.class)) {
                 Scope scope = list_classes.get(i).getAnnotation(Scope.class);
-                if(scope.singleton().compareToIgnoreCase("Singleton")==0) {
+                if(scope.singleton()) {
                     result.put(list_classes.get(i), null);
                 }
             }
@@ -340,9 +340,7 @@ public class Utilitaire {
                     }
                     FileUpload fp = (FileUpload) ob.getClass().getDeclaredMethod(Utilitaire.getGettersMethods(ob)[j]).invoke(ob);
                     fp.writeFileUpload(request, part);
-                } else {
-                    Utilitaire.castField(ob.getClass().getDeclaredFields()[j], request.getParameter(ob.getClass().getDeclaredFields()[j].getName()), setters[j], ob);
-                }
+                } 
             } else if(request.getParameter(ob.getClass().getDeclaredFields()[j].getName())!=null) {
                 Utilitaire.castField(ob.getClass().getDeclaredFields()[j], request.getParameter(ob.getClass().getDeclaredFields()[j].getName()), setters[j], ob);
             }  
@@ -402,9 +400,11 @@ public class Utilitaire {
                     Object[] args=new Object[methods[i].getParameterCount()];
                     args=Utilitaire.getArgs(request, methods[i], param);
                     Object result= methods[i].invoke(ob, args);
-                    if(methods[i].isAnnotationPresent(Json.class)) {
+                    if(methods[i].isAnnotationPresent(Json.class)==true) {
+                        System.out.println("eto");
                         return new ModelReturn(result, true);
                     }
+                    System.out.println("tsy json");
                     return new ModelReturn(result);
                 }
             }
@@ -439,6 +439,17 @@ public class Utilitaire {
         for(int i=0; i<md.getSession().size(); i++) {
             if(request.getSession().getAttribute((String) md.getSession().keySet().toArray()[i])==null) {
                 request.getSession().setAttribute((String) md.getSession().keySet().toArray()[i], md.getSession().get((String) md.getSession().keySet().toArray()[i]));
+            }
+        }
+    }
+
+/// Supprimer une session
+    public static void removeSession(HttpServletRequest request, ModelView md) {
+        if(md.isInvalidateSession()) {
+            request.getSession().invalidate();
+        } else {
+            for(int i=0; i<md.getSessionRemove().size(); i++) {
+                request.getSession().removeAttribute(md.getSessionRemove().get(i));
             }
         }
     }

@@ -139,8 +139,9 @@ extends HttpServlet {
                 pr.println(this.gson.toJson(md.getObject()));
             } else {
                 ModelView mdv= (ModelView) md.getObject();
+                Utilitaire.removeSession(request, mdv);
                 Utilitaire.addSession(request, mdv);
-                if(md.isJson()) {
+                if(mdv.isJson()) {
                     response.setContentType("application/json");
                     pr=response.getWriter();
                     pr.println(this.gson.toJson(mdv.getData()));
@@ -153,29 +154,9 @@ extends HttpServlet {
                     }        
                 }
             }
-            // if(!(ob instanceof ModelView)) {
-            //     response.setContentType("application/json");
-            //     pr=response.getWriter();
-            //     pr.println(this.gson.toJson(ob));
-            // } else {
-            //     ModelView md= (ModelView) ob;
-            //     Utilitaire.addSession(request, md);
-            //     if(md.isJson()) {
-            //         response.setContentType("application/json");
-            //         pr=response.getWriter();
-            //         pr.println(this.gson.toJson(md.getData()));
-            //     } else {
-            //         Utilitaire.setAttribute(request, md);
-            //         RequestDispatcher dispat=null;
-            //         for(int i=0; i<md.getView().length; i++) {
-            //             dispat=request.getRequestDispatcher(md.getView()[i]);
-            //             dispat.include(request, response);
-            //         }        
-            //     }
-            // }
         } catch (Exception e) {
-            pr.println(e.getMessage());
             e.printStackTrace();
+            pr.println(e.getMessage());
         }
     }
 
@@ -185,6 +166,7 @@ extends HttpServlet {
         try {
             processRequest(request, response);
         } catch (Exception e) {
+            e.printStackTrace();
             pr.println(e.getMessage());
         }
     }
@@ -195,6 +177,7 @@ extends HttpServlet {
         try {
             processRequest(request, response);
         } catch (Exception e) {
+            e.printStackTrace();
             pr.println(e.getMessage());
         }
     }

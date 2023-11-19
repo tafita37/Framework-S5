@@ -2,7 +2,7 @@ package url;
 
 public class ModelReturn {
     Object object;
-    boolean json;
+    boolean json=false;
 
 /*--------------------------------------------------Fonctions prérequise------------------------------------------- */
 /// Getters and setters
