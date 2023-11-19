@@ -1,7 +1,10 @@
 package controllers;
+
 import annotation.*;
 import upload.FileUpload;
 import url.ModelView;
+
+@Scope(singleton = "Singleton")
 public class Employes {
     int id_employes;
     String nom;
