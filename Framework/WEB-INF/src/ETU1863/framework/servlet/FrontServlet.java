@@ -34,13 +34,18 @@ extends HttpServlet {
     public void processRequest(HttpServletRequest request, HttpServletResponse response)
     throws IOException, ServletException {
         PrintWriter pr=response.getWriter();
-        Object[] list_key=mappingUrls.keySet().toArray();
-        for(int i=0; i<this.mappingUrls.size(); i++) {
-            pr.println("Classe numero : "+(i+1)+" avec annotation Url");
-            pr.println("Lien : "+list_key[i]);
-            pr.println("Nom de classe : "+this.mappingUrls.get(list_key[i]).getClassName());
-            pr.println("Nom de la method : "+this.mappingUrls.get(list_key[i]).getMethod());
-            pr.println("-----------------------------------------------------");
+        try {
+            String queryString = request.getQueryString();
+            StringBuffer requestURL = request.getRequestURL();
+            ServletContext context = getServletContext();
+            String fullPath = context.getRealPath("/WEB-INF/classes");
+            Utilitaire util=new Utilitaire(queryString, requestURL, fullPath);
+            System.out.println(util.getView());
+            RequestDispatcher dispat=request.getRequestDispatcher(util.getView());
+            dispat.forward(request, response);
+        } catch (Exception e) {
+            pr.println(e.getMessage());
+            e.printStackTrace();
         }
     }
 
