@@ -8,6 +8,10 @@
         <servlet-name>Front</servlet-name> 
         <servlet-class>ETU1863.framework.servlet.FrontServlet</servlet-class> 
         <init-param>
+            <param-name>default_controller</param-name>
+            <param-value>.do</param-value>
+        </init-param>
+        <init-param>
             <param-name>paquet</param-name>
             <param-value>classes</param-value>
         </init-param>
@@ -22,6 +26,6 @@
     </servlet>
     <servlet-mapping> 
         <servlet-name>Front</servlet-name>
-        <url-pattern>/</url-pattern>
+        <url-pattern>*.do</url-pattern>
     </servlet-mapping>
 </web-app>

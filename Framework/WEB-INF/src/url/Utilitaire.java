@@ -385,7 +385,7 @@ public class Utilitaire {
     }
 
 /// Invoquer une méthode ModelView qui a l'url
-    public static ModelView invokeMethod(HttpServletRequest request, Object ob, String url)
+    public static ModelReturn invokeMethod(HttpServletRequest request, Object ob, String url)
     throws Exception {
         Method[] methods=ob.getClass().getDeclaredMethods();
         Annotation annot=null;
@@ -401,7 +401,11 @@ public class Utilitaire {
                     }
                     Object[] args=new Object[methods[i].getParameterCount()];
                     args=Utilitaire.getArgs(request, methods[i], param);
-                    return (ModelView) methods[i].invoke(ob, args);
+                    Object result= methods[i].invoke(ob, args);
+                    if(methods[i].isAnnotationPresent(Json.class)) {
+                        return new ModelReturn(result, true);
+                    }
+                    return new ModelReturn(result);
                 }
             }
         }

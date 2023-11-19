@@ -19,6 +19,7 @@ extends HttpServlet {
     String dossier;
     String role;
     String profil;
+    Gson gson;
     
     public HashMap<String, Mapping> getMappingUrls() {
         return mappingUrls;
@@ -81,6 +82,7 @@ extends HttpServlet {
 
     public void init() {
         try {
+            this.gson=new Gson();
             ServletConfig config=this.getServletConfig();
             this.dossier=config.getInitParameter("paquet");
             ServletContext context = getServletContext();
@@ -97,7 +99,7 @@ extends HttpServlet {
         }
     }
 
-    public ModelView getCorrespondingModelView(HttpServletRequest request)
+    public ModelReturn getCorrespondingModelReturn(HttpServletRequest request)
     throws Exception {
         String queryString = request.getQueryString();
         StringBuffer requestURL = request.getRequestURL();
@@ -128,20 +130,49 @@ extends HttpServlet {
 
     public void processRequest(HttpServletRequest request, HttpServletResponse response)
     throws IOException, ServletException {
-        PrintWriter pr=response.getWriter();
+        PrintWriter pr=null;
         try {
-            ModelView md=this.getCorrespondingModelView(request);
-            Utilitaire.addSession(request, md);
+            ModelReturn md=this.getCorrespondingModelReturn(request);
             if(md.isJson()) {
-                pr.println(new Gson().toJson(md.getData()));
+                response.setContentType("application/json");
+                pr=response.getWriter();
+                pr.println(this.gson.toJson(md.getObject()));
             } else {
-                Utilitaire.setAttribute(request, md);
-                RequestDispatcher dispat=null;
-                for(int i=0; i<md.getView().length; i++) {
-                    dispat=request.getRequestDispatcher(md.getView()[i]);
-                    dispat.include(request, response);
-                }        
+                ModelView mdv= (ModelView) md.getObject();
+                Utilitaire.addSession(request, mdv);
+                if(md.isJson()) {
+                    response.setContentType("application/json");
+                    pr=response.getWriter();
+                    pr.println(this.gson.toJson(mdv.getData()));
+                } else {
+                    Utilitaire.setAttribute(request, mdv);
+                    RequestDispatcher dispat=null;
+                    for(int i=0; i<mdv.getView().length; i++) {
+                        dispat=request.getRequestDispatcher(mdv.getView()[i]);
+                        dispat.include(request, response);
+                    }        
+                }
             }
+            // if(!(ob instanceof ModelView)) {
+            //     response.setContentType("application/json");
+            //     pr=response.getWriter();
+            //     pr.println(this.gson.toJson(ob));
+            // } else {
+            //     ModelView md= (ModelView) ob;
+            //     Utilitaire.addSession(request, md);
+            //     if(md.isJson()) {
+            //         response.setContentType("application/json");
+            //         pr=response.getWriter();
+            //         pr.println(this.gson.toJson(md.getData()));
+            //     } else {
+            //         Utilitaire.setAttribute(request, md);
+            //         RequestDispatcher dispat=null;
+            //         for(int i=0; i<md.getView().length; i++) {
+            //             dispat=request.getRequestDispatcher(md.getView()[i]);
+            //             dispat.include(request, response);
+            //         }        
+            //     }
+            // }
         } catch (Exception e) {
             pr.println(e.getMessage());
             e.printStackTrace();
