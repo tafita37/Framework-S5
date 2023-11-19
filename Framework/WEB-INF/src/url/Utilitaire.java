@@ -119,4 +119,33 @@ public class Utilitaire {
         }
         return result; 
     }
+
+/// Récupérer une classe par son nom
+    public Class<?> getClassByName(String name)
+    throws Exception {
+        List<Class<?>> classes=this.getAllClasses("");
+        Class<?> result=null;
+        for(int i=0; i<classes.size(); i++) {
+            if(classes.get(i).getSimpleName().compareTo(name)==0) {
+                result=classes.get(i);
+            }
+        }
+        return result;
+    }
+
+/// Récupérer la vue correspondante
+    public String getView()
+    throws Exception {
+        String result="";
+        HashMap<String, Mapping> urls=this.getClassWithUrlAnnotation();
+        Object[] keys=urls.keySet().toArray();
+        for(int i=0; i<keys.length; i++) {
+            if(keys[i].toString().compareTo(this.getQueryString())==0) {
+                Class<?> classe=this.getClassByName(urls.get(keys[i]).getClassName());
+                Object ob=classe.newInstance();
+                result=ob.getClass().getDeclaredMethod(urls.get(keys[i]).getMethod()).invoke(ob).toString();
+            }
+        }
+        return result;
+    }
 }
