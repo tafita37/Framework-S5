@@ -97,6 +97,9 @@ public class Employes {
     public ModelView completeInformation()
     throws Exception {
         ModelView result=new ModelView("formulaire.jsp");
+        result.setJson(true);
+        result.addItem("testJson", new Employes());
+        result.addItem("testJson2", "new Employes()");
         return result;
     }
 

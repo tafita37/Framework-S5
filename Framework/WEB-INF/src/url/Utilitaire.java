@@ -213,9 +213,11 @@ public class Utilitaire {
     public static void setAttribute(HttpServletRequest request, ModelView md)
     throws Exception {
         Object[] keys=md.getData().keySet().toArray();
-        for(int i=0; i<keys.length; i++) {
-            request.setAttribute((String) keys[i], md.getData().get(keys[i]));
-        }
+        if(!md.isJson()) {
+            for(int i=0; i<keys.length; i++) {
+                request.setAttribute((String) keys[i], md.getData().get(keys[i]));
+            }
+        } 
     }
 
 /// Convertir la première lettre d'une chaine de caractère en majuscule

@@ -6,6 +6,7 @@ public class ModelView {
     String[] view;
     HashMap<String, Object> data=new HashMap<String, Object>();
     HashMap<String, Object> session = new HashMap<String, Object>();
+    boolean json;
 
 /*-----------------------------------Fonctions prérequis--------------------------------------- */
 /// Getters and setters
@@ -41,6 +42,14 @@ public class ModelView {
             throw new Exception("Veuillez entrer des variables de sessions");
         } 
         this.session = nouveau;
+    }
+
+    public boolean isJson() {
+        return json;
+    }
+
+    public void setJson(boolean nouveau) {
+        this.json = nouveau;
     }
 
 /// Constructeurs
