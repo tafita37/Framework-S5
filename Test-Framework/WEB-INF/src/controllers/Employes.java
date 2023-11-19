@@ -93,18 +93,18 @@ public class Employes {
 
 /*------------------------------------------Fonctions principales------------------------------------------ */
 /// Find all
-    @Url(link = "./")
+    @Url(link = ".do")
     public ModelView completeInformation()
     throws Exception {
-        ModelView result=new ModelView("formulaire.jsp");
-        result.setJson(true);
+        ModelView result=new ModelView("formulaire.html");
+        // result.setJson(true);
         result.addItem("testJson", new Employes());
         result.addItem("testJson2", "new Employes()");
         return result;
     }
 
 /// Deuxième test
-    @Url(link = "test")
+    @Url(link = "test.do")
     public ModelView allEmp()
     throws Exception {
         ModelView result=new ModelView("test.jsp");
@@ -116,11 +116,24 @@ public class Employes {
 
 /// Autorisation
     @Auth(role = "admin", exception = "Seule l'admin peut acceder a la fonction admin")
-    @Url(link = "admin")
+    @Url(link = "admin.do")
     public ModelView admin()
     throws Exception {
         ModelView md=new ModelView("admin.jsp");
         System.out.println(this.getSession().get("role"));
         return md;
+    }
+
+/// AllEmp
+    @Url(link = "allEmp.do")
+    @Json
+    public Employes[] getAllEmployes()
+    throws Exception {
+        Employes[] result=new Employes[4];
+        result[0]=new Employes(1, "nom", "prenom");
+        result[1]=new Employes(2, "nom", "prenom");
+        result[2]=new Employes(3, "nom", "prenom");
+        result[3]=new Employes(4, "nom", "prenom");
+        return result;
     }
 }
