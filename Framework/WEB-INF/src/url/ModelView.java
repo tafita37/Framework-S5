@@ -3,21 +3,21 @@ package url;
 import java.util.HashMap;
 
 public class ModelView {
-    String view;
+    String[] view;
     HashMap<String, Object> data=new HashMap<String, Object>();
     HashMap<String, Object> session = new HashMap<String, Object>();
 
 /*-----------------------------------Fonctions prérequis--------------------------------------- */
 /// Getters and setters
-    public String getView() {
+    public String[] getView() {
         return this.view;
     }
 
-    public void setView(String nouveau)
+    public void setView(String[] nouveau)
     throws Exception {
         if(nouveau==null) {
             throw new Exception("Nom de vue null lors de l'instanciation de ModelView");
-        } else if(nouveau.length()==0) {
+        } else if(nouveau.length==0) {
             throw new Exception("Veuillez entrer un nom de vue");
         }
         this.view=nouveau;
@@ -44,7 +44,7 @@ public class ModelView {
     }
 
 /// Constructeurs
-    public ModelView(String view)
+    public ModelView(String...view)
     throws Exception {
         this.setView(view);
     }

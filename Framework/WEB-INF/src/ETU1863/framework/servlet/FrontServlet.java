@@ -130,8 +130,11 @@ extends HttpServlet {
             ModelView md=this.getCorrespondingModelView(request);
             Utilitaire.addSession(request, md);
             Utilitaire.setAttribute(request, md);
-            RequestDispatcher dispat=request.getRequestDispatcher(md.getView());
-            dispat.forward(request, response);
+            RequestDispatcher dispat=null;
+            for(int i=0; i<md.getView().length; i++) {
+                dispat=request.getRequestDispatcher(md.getView()[i]);
+                dispat.include(request, response);
+            }
         } catch (Exception e) {
             pr.println(e.getMessage());
             e.printStackTrace();

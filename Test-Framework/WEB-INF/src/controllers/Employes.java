@@ -1,5 +1,7 @@
 package controllers;
 
+import java.util.HashMap;
+
 import annotation.*;
 import upload.FileUpload;
 import url.ModelView;
@@ -10,6 +12,8 @@ public class Employes {
     String nom;
     String prenom;
     FileUpload photo;
+    @SessionField
+    HashMap<String, Object> session;
 
 /*----------------------------------------Fonctions prérequis---------------------------------------- */
 /// Getters and setters
@@ -61,6 +65,18 @@ public class Employes {
         this.photo = photo;
     }
 
+    public HashMap<String, Object> getSession() {
+        return session;
+    }
+
+    public void setSession(HashMap<String, Object> nouveau)
+    throws Exception {
+        if(nouveau==null) {
+            throw new Exception("Veuillez entrer une liste de session");
+        }
+        this.session = nouveau;
+    }
+
 /// Constructeurs
     public Employes()
     throws Exception {
@@ -101,6 +117,7 @@ public class Employes {
     public ModelView admin()
     throws Exception {
         ModelView md=new ModelView("admin.jsp");
+        System.out.println(this.getSession().get("role"));
         return md;
     }
 }
